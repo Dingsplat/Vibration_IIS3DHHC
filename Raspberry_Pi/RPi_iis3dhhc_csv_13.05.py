@@ -25,7 +25,8 @@ spi.mode = 3
 id = spi.xfer2([0x80 | 0x0F, 0x00])
 print ('Device ID: '+ str(hex(id[1])))
 print ('Units: mG')
-print ('X, Y, Z' + '\n')
+print ('t, X, Y, Z')
+print ('Z access offset +1000mG (gravity)' +'\n')
 time.sleep(1)
 print ('Logging...... press CTRL+C to exit')
 
@@ -63,12 +64,13 @@ def filestamp():
     return timest
 
 def filename():
-    filenm = filestamp() + '.txt'
+    filenm = filestamp() + '00hrs.txt'
     return filenm
 
 def datastamp():
     now = datetime.now()
-    stamp = now.strftime("%H:%M:%S.%f")
+#    stamp = now.strftime("%H:%M:%S.%f")        # microseconds
+    stamp = now.strftime("%H:%M:%S.%f")[:-3]   # milliseconds 
     return stamp
 
 # Initialize the IIS3DHHC accelerometer
@@ -79,22 +81,19 @@ Path("/home/pi/Downloads/data").mkdir(parents=True, exist_ok=True)
 # Create file
 
 
-# Read the IIS3DHHC every 5msecs and print comma separated variables to console x,y,z
+# Read the IIS3DHHC every 'x' msecs and print comma separated variables to console x,y,z
 while True:
     axia = readiis3dhhc()
-    #tstamped = [datastamp()]+axia
-    tstamped = [time.time()]+axia
+    tstamped = [datastamp()]+axia      # HH:MM:SS.000000 time stamp
+    #tstamped = [time.time()]+axia     # epoch time stamp
     filenm = filename()
     
    
     with open('/home/pi/Downloads/data/'+(filenm), 'a') as file: 
             writer = csv.writer(file, delimiter=',')
             writer.writerow(tstamped)
-    time.sleep(0.005)
+    time.sleep(0.0007)                 # adjust for sampling rate
      
-    # elapsed = time.perf_counter()
-    # current = 0
-    # while(current < timeout):
-    #     current = time.perf_counter() - elapsed
+   
 
     
