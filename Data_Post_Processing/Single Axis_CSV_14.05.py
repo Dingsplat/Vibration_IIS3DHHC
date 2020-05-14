@@ -5,6 +5,7 @@ from scipy.fftpack import fft
 import tkinter as tk
 from tkinter import filedialog
 import time
+from scipy import signal
 
 #style.use('fivethirtyeight')
 style.use('dark_background')
@@ -19,14 +20,16 @@ print(file_path)
 #Load Data (assumes four column array (t,x,y,z))
 tic = time.process_time()
 t, x = np.genfromtxt(file_path,delimiter=',', unpack=True)		
-t = t/1000																			# 16.04.20: convert millis to seconds for data plotting
+#t = t/1000																			# 16.04.20: convert millis to seconds for data plotting
 toc = time.process_time()
 print("Load Time:",toc-tic)
 
 #Determine variables
 N = np.int(np.prod(t.shape))														#length of the array
-# Fs = 1/(t[1]-t[0])																#sample rate (Hz) - original; works for SerialPlot Test.csv, doesn't work for Datalogger_ARDTimed.py data
-Fs = 1/(t[2]-t[1])																	#sample rate (Hz) - altered for Datalogger_ARDTimed.py data
+# Fs = 1/(t[1]-t[0])
+sravg = ((t[2]-t[1])+(t[3]-t[2])+(t[4]-t[3])+(t[5]-t[4])+(t[6]-t[5]))/5
+Fs = 1/sravg																#sample rate (Hz) - original; works for SerialPlot Test.csv, doesn't work for Datalogger_ARDTimed.py data
+#Fs = 1/(t[2]-t[1])																	#sample rate (Hz) - altered for Datalogger_ARDTimed.py data
 T = 1/Fs;
 print("# Samples:",N)
 print("Sample Rate:",Fs,"(Hz)")
@@ -79,7 +82,6 @@ plt.ylabel('Accel (mg)')
 plt.title('FFT - ' + 'X Axis')
 toc = time.process_time()
 print("X-FFT Time:",toc-tic)
-
 
 plt.show()
   
